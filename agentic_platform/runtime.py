@@ -23,12 +23,15 @@ class ToolNotFound(ExecutionError):
 class ExecutionPolicy:
     max_tool_calls: int = 4
     timeout_seconds: float = 5.0
+    max_argument_count: int = 32
 
     def validate(self) -> None:
         if self.max_tool_calls < 1:
             raise ValueError("max_tool_calls must be >= 1")
         if self.timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be > 0")
+        if self.max_argument_count < 0:
+            raise ValueError("max_argument_count must be >= 0")
 
 
 @dataclass(frozen=True)
@@ -76,6 +79,10 @@ class AgentExecutor:
     def execute(self, request: ExecutionRequest) -> Any:
         if not request.request_id.strip():
             raise ValueError("request_id must not be empty")
+        if not request.tool.strip():
+            raise ValueError("tool must not be empty")
+        if len(request.arguments) > self.policy.max_argument_count:
+            raise PolicyDenied("argument budget exhausted")
         if self._tool_calls >= self.policy.max_tool_calls:
             raise PolicyDenied("tool-call budget exhausted")
 
