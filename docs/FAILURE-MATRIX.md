@@ -2,11 +2,13 @@
 
 | Failure | Detection | Action | Retry? | Runtime status |
 |---|---|---|---|---|
-| Invalid/untrusted input | future contract validation | reject | No | planned |
-| Dependency timeout | future timeout budget | normalize | Safe/idempotent only | planned |
-| Dependency error | future provider adapter | exponential backoff | Safe/idempotent only | planned |
-| Repeated failure | future circuit breaker | open circuit | No while open | planned |
-| Local overload | future bounded executor/rate limiter | fail fast | No | planned |
-| Policy/tool denial | future authorization | fail closed | No | planned |
+| Invalid request ID | request validation | reject | No | implemented |
+| Unknown tool | registry resolution | normalize and audit | No | implemented |
+| Tool exception | execution boundary | normalize and audit | Adapter-specific | implemented |
+| Tool-call budget exhausted | execution policy | fail closed | No | implemented |
+| Dependency timeout | provider adapter | normalize | Safe/idempotent only | extension point |
+| Repeated dependency failure | provider policy | open circuit | No while open | extension point |
+| Local overload | bounded executor | fail fast | No | extension point |
+| Policy/tool denial | authorization boundary | fail closed | No | extension point |
 
-The table is a design contract, not a claim of current runtime behavior.
+The runtime status column distinguishes implemented behavior from future adapter capabilities.
