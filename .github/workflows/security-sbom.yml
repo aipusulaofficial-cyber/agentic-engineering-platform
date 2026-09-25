@@ -11,14 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Filesystem security scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
           scanners: vuln,secret,misconfig
           ignore-unfixed: true
       - name: Repository SBOM
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
