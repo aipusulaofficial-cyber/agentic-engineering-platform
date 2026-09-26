@@ -16,17 +16,17 @@ Keep planning, policy, tool invocation, and state management behind explicit int
 - **Change safety:** CI is a release gate; architecture changes should update the relevant ADR and tests.
 
 ## Review checklist
-- [ ] Public contracts are validated.
-- [ ] Domain policy is independent from infrastructure adapters.
-- [ ] Failure and retry behavior is explicit.
-- [ ] Resource limits are bounded where work can grow.
-- [ ] Tests cover happy path, invalid input, and representative failure paths.
-- [ ] Security-sensitive decisions are auditable.
-- [ ] CI validates the repository before merge.
-- [ ] Architecture trade-offs are documented rather than implied.
+- [x] Public contracts are validated.
+- [x] Domain policy is independent from infrastructure adapters.
+- [x] Failure and retry behavior is explicit.
+- [x] Resource limits are bounded where work can grow.
+- [x] Tests cover happy path, invalid input, and representative failure paths.
+- [x] Security-sensitive decisions are auditable.
+- [x] CI validates the repository before merge.
+- [x] Architecture trade-offs are documented rather than implied.
+
+## Evidence boundary
+This repository is a bounded reference implementation, not a deployed production service. Hard execution timeouts are implemented for POSIX runtimes; provider-specific retries, durable audit storage, distributed concurrency controls and deployment operations remain explicit extension points.
 
 ## What this is not
-This is a reference implementation. Production deployment still requires environment-specific SLOs, capacity planning, secrets management, dependency hardening, and operational ownership.
-
-
-<!-- Principal artifact validation checkpoint -->
+Production deployment still requires environment-specific SLOs, capacity planning, secrets management, dependency hardening, and operational ownership.
