@@ -59,10 +59,7 @@ class AgentExecutorTests(unittest.TestCase):
             AgentExecutor(ToolRegistry(), ExecutionPolicy(max_argument_count=-1))
 
     def test_argument_budget_is_enforced(self) -> None:
-        executor = AgentExecutor(
-            self.executor.registry,
-            ExecutionPolicy(max_argument_count=0),
-        )
+        executor = AgentExecutor(self.executor.registry, ExecutionPolicy(max_argument_count=0))
         with self.assertRaises(PolicyDenied):
             executor.execute(ExecutionRequest("req-args", "echo", {"value": 1}))
         event = executor.audit_events[0]
