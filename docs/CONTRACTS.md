@@ -3,9 +3,10 @@
 The runtime exposes an executable contract for untrusted request metadata and controlled tool invocation.
 
 - **Execution request:** non-empty request_id, tool name and structured arguments.
-- **Policy contract:** positive timeout budget and bounded maximum tool calls.
+- **Policy contract:** positive timeout budget, bounded maximum tool calls and bounded argument count.
 - **Tool contract:** uniquely registered callable resolved by name.
-- **Failure contract:** unknown tools and policy denials are normalized into explicit execution errors.
-- **Audit contract:** every attempted execution emits request ID, tool, status, error type and latency.
+- **Timeout contract:** on POSIX runtimes, a tool call is interrupted when it exceeds timeout_seconds and normalized as ExecutionTimeout.
+- **Failure contract:** unknown tools, policy denials, timeouts and unexpected handler failures are explicit execution errors.
+- **Audit contract:** every attempted execution that enters the execution boundary emits request ID, tool, status, error type and latency.
 
-Provider/tool adapters can be layered above this boundary without coupling the core to external services.
+The core uses a POSIX signal for hard in-process timeout enforcement. Provider/tool adapters can be layered above this boundary without coupling the core to external services.
