@@ -65,7 +65,8 @@ class AgentExecutorTests(unittest.TestCase):
         )
         with self.assertRaises(PolicyDenied):
             executor.execute(ExecutionRequest("req-args", "echo", {"value": 1}))
-        self.assertEqual(executor.audit_events, ())
+        event = executor.audit_events[0]
+        self.assertEqual((event.status, event.error_type), ("denied", "PolicyDenied"))
 
     def test_handler_exception_is_normalized_and_audited(self) -> None:
         registry = ToolRegistry()
