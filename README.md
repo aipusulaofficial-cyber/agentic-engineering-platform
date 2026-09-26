@@ -1,29 +1,33 @@
 # Agentic Engineering Platform
 
-**Principal-level reference implementation** focused on agent lifecycle orchestration, tool boundaries, execution policies, and auditable agent workflows.
+A runnable platform for defining, executing, and auditing agentic workflows with explicit policy and tool boundaries.
 
-## Engineering intent
-- Clear domain boundaries and replaceable infrastructure adapters
-- Explicit contracts, validation, and failure semantics
-- Deterministic tests with external dependencies isolated
-- Operational readiness through health checks, CI, and security validation
-- Architecture decisions documented so trade-offs are reviewable
+## What this project does
+The platform treats an agent run as a controlled execution lifecycle: input is validated, a plan is produced under policy, tools are invoked through bounded interfaces, state is propagated, and the outcome is recorded for audit.
 
-## System design
-The repository is structured around a small set of explicit responsibilities rather than framework-driven coupling. Request/event handling, domain policy, infrastructure adapters, and operational concerns are kept separable so individual components can evolve without forcing a system-wide rewrite.
+## Architecture
+- **Request / event boundary** — accepts execution intent and normalizes inputs.
+- **Agent policy** — controls what an agent may plan or execute.
+- **Planner / orchestrator** — turns intent into bounded execution steps.
+- **Tool adapters** — isolate external systems behind replaceable interfaces.
+- **State / execution record** — preserves run context and audit information.
+- **Operational layer** — health, telemetry, CI and security checks.
 
-## Quality bar
-- **Correctness:** contract and edge-case tests cover expected and failure paths
-- **Reliability:** bounded work, explicit timeouts/failures, and health signals where applicable
-- **Security:** least-privilege boundaries, input validation, and safe defaults
-- **Observability:** correlation/context propagation and actionable operational signals
-- **Delivery:** reproducible CI validation before changes are considered complete
+Policy is kept out of infrastructure clients so adapters can change without redefining the domain contract.
 
-## Principal engineering contract
-See [docs/PRINCIPAL-ENGINEERING.md](docs/PRINCIPAL-ENGINEERING.md) for the reviewable engineering contract, NFRs, and change-safety checklist.
+## Execution contract
+Execution is bounded by explicit tool-call and time limits. Retries are idempotency-aware rather than blind. Meaningful runs retain enough context to reconstruct what was attempted and why.
 
-## Architecture & decisions
-See [ARCHITECTURE.md](ARCHITECTURE.md) and the ADRs directory for system boundaries, key trade-offs, and extension points.
+## Reliability
+Invalid plans, rejected tools, dependency failures, timeouts and partial execution are represented as explicit failure states instead of successful-looking results.
 
-## Engineering principle
-The goal is not to maximize framework complexity; it is to make important behavior **explicit, testable, observable, and replaceable**.
+## Testing & security
+Tests cover contracts and failure paths while external dependencies are isolated. CI validates the repository and security controls use least-privilege boundaries.
+
+## Evidence
+- Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Engineering contract: [docs/PRINCIPAL-ENGINEERING.md](docs/PRINCIPAL-ENGINEERING.md)
+- Decisions: [ADRs](ADRs/)
+
+## Engineering standard
+**Code → Contract → Test → Security → Runtime → Observability → Deployment → Evidence**.
