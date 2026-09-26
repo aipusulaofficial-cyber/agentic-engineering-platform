@@ -107,8 +107,14 @@ class AgentExecutor:
         if not request.tool.strip():
             raise ValueError("tool must not be empty")
         if len(request.arguments) > self.policy.max_argument_count:
+            self._audit.append(
+                AuditEvent(request.request_id, request.tool, "denied", "PolicyDenied", 0.0)
+            )
             raise PolicyDenied("argument budget exhausted")
         if self._tool_calls >= self.policy.max_tool_calls:
+            self._audit.append(
+                AuditEvent(request.request_id, request.tool, "denied", "PolicyDenied", 0.0)
+            )
             raise PolicyDenied("tool-call budget exhausted")
 
         started = monotonic()
