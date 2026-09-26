@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import signal
 from dataclasses import dataclass, field
 from time import monotonic
 from typing import Any, Callable
@@ -17,6 +18,10 @@ class PolicyDenied(ExecutionError):
 
 class ToolNotFound(ExecutionError):
     """Raised when a requested tool is not registered."""
+
+
+class ExecutionTimeout(ExecutionError):
+    """Raised when a tool execution exceeds the configured timeout budget."""
 
 
 @dataclass(frozen=True)
@@ -68,6 +73,11 @@ class ToolRegistry:
             raise ToolNotFound(name) from exc
 
 
+def _timeout_handler(signum: int, frame: Any) -> None:
+    del signum, frame
+    raise ExecutionTimeout("tool execution exceeded timeout budget")
+
+
 class AgentExecutor:
     def __init__(self, registry: ToolRegistry, policy: ExecutionPolicy | None = None) -> None:
         self.registry = registry
@@ -75,6 +85,21 @@ class AgentExecutor:
         self.policy.validate()
         self._audit: list[AuditEvent] = []
         self._tool_calls = 0
+
+    def _invoke_with_timeout(self, handler: Callable[..., Any], arguments: dict[str, Any]) -> Any:
+        if not hasattr(signal, "SIGALRM") or not hasattr(signal, "setitimer"):
+            raise ExecutionError("hard execution timeout requires POSIX signal support")
+
+        previous_handler = signal.getsignal(signal.SIGALRM)
+        previous_timer = signal.setitimer(signal.ITIMER_REAL, self.policy.timeout_seconds)
+        signal.signal(signal.SIGALRM, _timeout_handler)
+        try:
+            return handler(**arguments)
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous_handler)
+            if previous_timer[0] > 0:
+                signal.setitimer(signal.ITIMER_REAL, previous_timer[0], previous_timer[1])
 
     def execute(self, request: ExecutionRequest) -> Any:
         if not request.request_id.strip():
@@ -92,7 +117,7 @@ class AgentExecutor:
         self._tool_calls += 1
         try:
             handler = self.registry.resolve(request.tool)
-            return handler(**request.arguments)
+            return self._invoke_with_timeout(handler, request.arguments)
         except ExecutionError as exc:
             status = "denied" if isinstance(exc, PolicyDenied) else "error"
             error_type = type(exc).__name__
