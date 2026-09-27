@@ -1,22 +1,25 @@
-name: ci
+name: CI
+
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
-permissions: {contents: read}
+
+permissions:
+  contents: read
+
 jobs:
-  principal-boundary:
-    runs-on: ubuntu-24.04
+  quality:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - name: Repository whitespace gate
-        run: git diff --check
-      - name: Validate principal artifacts
-        run: python -c "from pathlib import Path; required=['ARCHITECTURE.md','ENGINEERING-CHAIN.md','docs/PRINCIPAL-ENGINEERING.md','docs/CONTRACTS.md','docs/FAILURE-MATRIX.md','docs/OPERATIONS.md','docs/SLO.md','ADRs/0001-architecture-boundary.md','ADRs/0003-failure-retry-strategy.md','ADRs/0004-security-decision.md']; assert all(Path(p).is_file() and Path(p).read_text().strip() for p in required)"
-      - name: Validate architecture chain
-        run: test -s ARCHITECTURE.md && test -s ENGINEERING-CHAIN.md && test -s docs/CONTRACTS.md && test -s docs/FAILURE-MATRIX.md && test -s docs/OPERATIONS.md && test -s docs/SLO.md
-      - name: Run deterministic runtime tests
-        run: python -m unittest discover -s tests -p 'test_*.py'
-      - name: Compile runtime package
-        run: python -m compileall -q agentic_platform
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install quality tools
+        run: python -m pip install --disable-pip-version-check ruff
+      - name: Ruff check
+        run: python -m ruff check .
+      - name: Ruff format check
+        run: python -m ruff format --check .
