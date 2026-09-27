@@ -1,0 +1,12 @@
+version: "1"
+budgets:
+  max_tool_calls: 20
+  max_retries: 3
+  max_runtime_seconds: 300
+  max_tokens: 50000
+  max_cost_usd: 5.0
+tools:
+  default: DENY
+audit:
+  required: true
+on_violation: DENY
