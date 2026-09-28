@@ -1,4 +1,5 @@
 """Hard agent budget enforcement."""
+
 from dataclasses import dataclass
 
 
