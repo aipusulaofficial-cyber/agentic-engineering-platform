@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import signal
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from time import monotonic
-from typing import Any, Callable
+from typing import Any
 
 
 class ExecutionError(Exception):
