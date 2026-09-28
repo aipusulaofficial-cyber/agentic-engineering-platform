@@ -22,7 +22,9 @@ class AgentExecutorTests(unittest.TestCase):
         result = self.executor.execute(ExecutionRequest("req-1", "echo", {"value": "ok"}))
         self.assertEqual(result, "ok")
         event = self.executor.audit_events[0]
-        self.assertEqual((event.request_id, event.status, event.error_type), ("req-1", "success", None))
+        self.assertEqual(
+            (event.request_id, event.status, event.error_type), ("req-1", "success", None)
+        )
         self.assertGreaterEqual(event.latency_ms, 0)
 
     def test_unknown_tool_is_normalized_and_audited(self) -> None:
