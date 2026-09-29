@@ -31,3 +31,6 @@ Tests cover contracts and failure paths while external dependencies are isolated
 
 ## Engineering standard
 **Code → Contract → Test → Security → Runtime → Observability → Deployment → Evidence**.
+
+## Portfolio evidence
+[Portfolio evidence map](docs/PORTFOLIO_EVIDENCE.md) — executable proof, architecture mapping and reviewable CI evidence.
