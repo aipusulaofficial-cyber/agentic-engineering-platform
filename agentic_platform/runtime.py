@@ -6,6 +6,7 @@ import math
 import signal
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from threading import current_thread, main_thread
 from time import monotonic
 from typing import Any
 
@@ -89,8 +90,16 @@ class AgentExecutor:
         self._tool_calls = 0
 
     def _invoke_with_timeout(self, handler: Callable[..., Any], arguments: dict[str, Any]) -> Any:
-        if not hasattr(signal, "SIGALRM") or not hasattr(signal, "setitimer"):
+        if (
+            not hasattr(signal, "SIGALRM")
+            or not hasattr(signal, "setitimer")
+            or not hasattr(signal, "getitimer")
+        ):
             raise ExecutionError("hard execution timeout requires POSIX signal support")
+        if current_thread() is not main_thread():
+            raise ExecutionError("hard execution timeout requires the main thread")
+        if signal.getitimer(signal.ITIMER_REAL)[0] > 0:
+            raise ExecutionError("hard timeout cannot override an existing process alarm")
 
         previous_handler = signal.getsignal(signal.SIGALRM)
         signal.signal(signal.SIGALRM, _timeout_handler)
