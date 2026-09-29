@@ -25,6 +25,7 @@ jobs:
         run: python -m ruff format --check .
       - name: Contract and runtime tests
         run: |
+          mkdir -p artifacts
           python -m pytest tests reliability/test_failure_injection.py -q --junitxml=artifacts/test-results.xml
       - name: Upload executable test evidence
         if: always()
