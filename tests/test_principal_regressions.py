@@ -12,6 +12,7 @@ def test_invalid_timeout_budgets_rejected(timeout):
 def test_valid_timeout_budget():
     ExecutionPolicy(timeout_seconds=0.1).validate()
 
+
 def test_worker_thread_execution_rejects_unsupported_signal_timeouts():
     from concurrent.futures import ThreadPoolExecutor
 
