@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import signal
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -32,12 +33,25 @@ class ExecutionPolicy:
     max_argument_count: int = 32
 
     def validate(self) -> None:
-        if self.max_tool_calls < 1:
-            raise ValueError("max_tool_calls must be >= 1")
-        if self.timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be > 0")
-        if self.max_argument_count < 0:
-            raise ValueError("max_argument_count must be >= 0")
+        if (
+            isinstance(self.max_tool_calls, bool)
+            or not isinstance(self.max_tool_calls, int)
+            or self.max_tool_calls < 1
+        ):
+            raise ValueError("max_tool_calls must be a positive integer")
+        if (
+            isinstance(self.timeout_seconds, bool)
+            or not isinstance(self.timeout_seconds, (int, float))
+            or not math.isfinite(self.timeout_seconds)
+            or self.timeout_seconds <= 0
+        ):
+            raise ValueError("timeout_seconds must be finite and positive")
+        if (
+            isinstance(self.max_argument_count, bool)
+            or not isinstance(self.max_argument_count, int)
+            or self.max_argument_count < 0
+        ):
+            raise ValueError("max_argument_count must be a non-negative integer")
 
 
 @dataclass(frozen=True)
@@ -63,6 +77,8 @@ class ToolRegistry:
     def register(self, name: str, handler: Callable[..., Any]) -> None:
         if not name.strip():
             raise ValueError("tool name must not be empty")
+        if not callable(handler):
+            raise ValueError("tool handler must be callable")
         if name in self._tools:
             raise ValueError(f"tool already registered: {name}")
         self._tools[name] = handler
