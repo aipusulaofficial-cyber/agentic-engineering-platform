@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import signal
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -34,7 +35,7 @@ class ExecutionPolicy:
     def validate(self) -> None:
         if self.max_tool_calls < 1:
             raise ValueError("max_tool_calls must be >= 1")
-        if self.timeout_seconds <= 0:
+        if not math.isfinite(self.timeout_seconds) or self.timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be > 0")
         if self.max_argument_count < 0:
             raise ValueError("max_argument_count must be >= 0")
@@ -92,8 +93,12 @@ class AgentExecutor:
             raise ExecutionError("hard execution timeout requires POSIX signal support")
 
         previous_handler = signal.getsignal(signal.SIGALRM)
-        previous_timer = signal.setitimer(signal.ITIMER_REAL, self.policy.timeout_seconds)
         signal.signal(signal.SIGALRM, _timeout_handler)
+        try:
+            previous_timer = signal.setitimer(signal.ITIMER_REAL, self.policy.timeout_seconds)
+        except Exception:
+            signal.signal(signal.SIGALRM, previous_handler)
+            raise
         try:
             return handler(**arguments)
         finally:
