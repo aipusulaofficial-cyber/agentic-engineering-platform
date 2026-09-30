@@ -1,5 +1,10 @@
 # Agentic Engineering Platform
 
+[![CI](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/ci.yml)
+[![Benchmark / Reliability](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/benchmark-reliability.yml/badge.svg?branch=main)](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/benchmark-reliability.yml)
+[![Security / SBOM](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/security-sbom.yml/badge.svg?branch=main)](https://github.com/aipusulaofficial-cyber/agentic-engineering-platform/actions/workflows/security-sbom.yml)
+
+
 A runnable platform for defining, executing, and auditing agentic workflows with explicit policy and tool boundaries.
 
 ## What this project does
